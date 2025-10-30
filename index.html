@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>See You Tomorrow, LAVS!</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Configure the Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Define the 'fly-away' keyframe animation using CSS variables for dynamic movement */
+        @keyframes fly-away-multiple {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(var(--initial-rotation));
+                opacity: 1;
+            }
+            100% {
+                /* Use custom properties set by JS for randomized destination */
+                transform: translate(var(--fly-end-x), var(--fly-end-y)) scale(var(--fly-scale)) rotate(var(--end-rotation));
+                opacity: 0;
+            }
+        }
+
+        /* Class to apply the animation to dynamically created hearts */
+        .heart-flying-multiple {
+            animation-name: fly-away-multiple;
+            animation-timing-function: ease-out;
+            animation-fill-mode: forwards;
+            pointer-events: none; /* Disable mouse interactions on hearts */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
+
+    <div id="message-card" class="bg-white text-gray-800 p-8 sm:p-10 rounded-xl shadow-2xl max-w-lg w-full text-center transition-all duration-500 ease-in-out">
+        
+        <h1 class="text-3xl sm:text-4xl font-extrabold mb-4 text-pink-600">
+            See You Tomorrow, LAVS!
+        </h1>
+
+        <p id="main-message" class="text-lg mb-6 leading-relaxed">
+            Hey LAVS, Na iniki veetuku pore theriyum cha, but I'll be back in your arms tomorrow. I'm going to miss you terribly until then.
+            <br><br>
+            Please promise me you'll take good care of yourself!
+        </p>
+
+        <div id="promise-items" class="space-y-3 mb-8 text-left text-gray-700">
+            <p class="flex items-center">
+                <span class="mr-3 text-xl">🍽️</span> 
+                <span class="font-semibold">Eat well:</span> Have your foods at the proper time.
+            </p>
+            <p class="flex items-center">
+                <span class="mr-3 text-xl">🚦</span> 
+                <span class="font-semibold">Be careful:</span> Be super careful going to and from the office.
+            </p>
+            <p class="flex items-center">
+                <span class="mr-3 text-xl">🏡</span> 
+                <span class="font-semibold">Stay safe:</span> Take care until I'm back.
+            </p>
+        </div>
+        
+        <p id="footer-text" class="text-sm italic text-gray-500 mb-6">
+            Every hour until I return will feel like a year. Can't wait to see you!
+        </p>
+
+        <button 
+            id="promise-btn" 
+            class="w-full sm:w-auto px-8 py-3 bg-pink-600 text-white text-lg font-bold rounded-full shadow-lg hover:bg-pink-700 transition-transform duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-pink-300">
+            I Promise!
+        </button>
+
+        <p id="confirmation" class="text-lg font-bold mt-6 text-green-600 hidden">
+            Message Sent! He'll see this when he checks the app. See you tomorrow!
+        </p>
+    </div>
+
+    <script>
+        const promiseBtn = document.getElementById('promise-btn');
+        const confirmationMessage = document.getElementById('confirmation');
+        const footerText = document.getElementById('footer-text');
+
+        // Function to create and animate a single heart
+        const createAndAnimateHeart = (startX, startY) => {
+            const heart = document.createElement('div');
+            
+            // Randomization for size, initial offset, duration, and delay
+            const size = 20 + Math.random() * 20; // 20px to 40px
+            const initialOffsetX = (Math.random() - 0.5) * 50; // -25px to +25px offset from center
+            const initialOffsetY = (Math.random() - 0.5) * 50; // -25px to +25px offset from center
+            const duration = 2.0 + Math.random() * 1.5; // 2.0s to 3.5s
+            const delay = Math.random() * 0.5; // 0s to 0.5s initial delay
+            const rotation = (Math.random() - 0.5) * 60; // Random initial rotation
+            const endRotation = 360 + Math.random() * 360; // Random end rotation
+
+            heart.innerHTML = '❤️';
+            
+            // Apply necessary styles and classes
+            heart.classList.add('absolute', 'z-50', 'leading-none');
+            heart.style.userSelect = 'none';
+
+            // Set initial position and size
+            heart.style.fontSize = `${size}px`;
+            heart.style.left = `${startX + initialOffsetX}px`;
+            heart.style.top = `${startY + initialOffsetY}px`;
+            heart.style.transition = 'none'; // Prevent initial transition flicker
+
+            document.body.appendChild(heart);
+            
+            // Calculate the random end position for the heart's fly path
+            // Fly left/right up to 400px, and up 500-800px
+            const endX = (Math.random() - 0.5) * 800; 
+            const endY = -500 - (Math.random() * 300); 
+            const endScale = 1.5 + Math.random() * 1.5; // Scale up 1.5x to 3x
+
+            // Set custom properties (CSS variables) to define the specific animation for this heart
+            heart.style.setProperty('--fly-end-x', `${endX}px`);
+            heart.style.setProperty('--fly-end-y', `${endY}px`);
+            heart.style.setProperty('--fly-scale', `${endScale}`);
+            heart.style.setProperty('--initial-rotation', `${rotation}deg`);
+            heart.style.setProperty('--end-rotation', `${endRotation}deg`);
+            heart.style.animationDuration = `${duration}s`;
+            heart.style.animationDelay = `${delay}s`;
+
+            // Trigger the animation
+            requestAnimationFrame(() => {
+                heart.classList.add('heart-flying-multiple');
+            });
+
+            // Clean up the heart element after its animation finishes
+            setTimeout(() => {
+                heart.remove();
+            }, (duration * 1000) + (delay * 1000) + 100);
+        };
+
+
+        // Main function to trigger the heart shower
+        const flyHeart = () => {
+            // Get the button's position once
+            const btnRect = promiseBtn.getBoundingClientRect();
+            
+            // Center coordinates of the button
+            const startX = btnRect.left + btnRect.width / 2;
+            const startY = btnRect.top + btnRect.height / 2;
+            
+            const numHearts = 20; // Launch 20 hearts
+
+            // 1. Update the UI state
+            promiseBtn.classList.add('hidden');
+            confirmationMessage.classList.remove('hidden');
+            footerText.innerHTML = "I love you, always.";
+            footerText.classList.remove('text-gray-500', 'italic');
+            footerText.classList.add('text-pink-600', 'font-semibold', 'text-lg');
+
+            // 2. Launch multiple hearts
+            for (let i = 0; i < numHearts; i++) {
+                createAndAnimateHeart(startX, startY);
+            }
+        };
+
+        // Attach the event listener to the button
+        promiseBtn.addEventListener('click', flyHeart);
+    </script>
+</body>
+</html>
